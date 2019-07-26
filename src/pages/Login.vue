@@ -14,15 +14,17 @@
           <el-input v-model="userForm.password"
                     type="password"
                     placeholder="密码"
-                    prefix-icon="iconfont icon-mima"></el-input>
+                    prefix-icon="iconfont icon-mima"
+                    @keydown.native.enter="loginSubmit(userForm)"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button class="login-btn">登 录</el-button>
+          <el-button class="login-btn"
+                     @click="loginSubmit(userForm)">登 录</el-button>
         </el-form-item>
         <div class="tip-words">
           <p>温馨提示:</p>
-          <p>未登录过的新用户，自动注册</p>
-          <p>注册过的用户可凭账号密码登录</p>
+          <p>用户名为：admin/editor(可用于切换权限)</p>
+          <p>密码为：123456</p>
         </div>
       </el-form>
     </div>
@@ -30,7 +32,7 @@
 </template>
 
 <script>
-
+import { loginApi } from '@/axios/api.js'
 export default {
   data() {
     return {
@@ -49,7 +51,27 @@ export default {
     }
   },
   methods: {
-
+    // 登录按钮
+    loginSubmit(userForm) {
+      this.$refs.userForm.validate((valid) => {
+        if (valid) {
+          loginApi(this.userForm).then(res => {
+            console.log(res);
+            if (res.code === 200) {
+              this.$message.success('登录成功')
+              this.$router.push({ name: 'Home' })
+              let token = res.data.token
+              localStorage.setItem('mytoken', token)
+            } else {
+              this.$message.success('登录失败')
+            }
+          })
+        } else {
+          console.log('验证未通过');
+          return false;
+        }
+      });
+    }
   }
 }
 </script>
